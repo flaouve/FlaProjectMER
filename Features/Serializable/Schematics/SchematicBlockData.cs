@@ -185,7 +185,7 @@ public class SchematicBlockData
 			if (targetId != 0 && !string.IsNullOrEmpty(stateName))
 			{
 				bool isToggled = false;
-				interactable.OnInteracted += (ReferenceHub hub) =>
+				Action<ReferenceHub> action = (ReferenceHub hub) =>
 				{
 					if (schematicObject.ObjectFromId.TryGetValue(targetId, out Transform targetTransform))
 					{
@@ -208,6 +208,9 @@ public class SchematicBlockData
 						}
 					}
 				};
+
+				interactable.OnInteracted += action;
+				interactable.OnSearched += action;
 			}
 		}
 
