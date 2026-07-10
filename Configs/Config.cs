@@ -8,7 +8,7 @@ public class Config
     public bool EnableFileSystemWatcher { get; set; } = false;
 
 	[Description("Whether to show debug logs in the console.")]
-	public bool Debug { get; set; } = false;
+	public bool debug { get; set; } = false;
 
 	[Description("Whether the object will be auto selected when spawning it.")]
 	public bool AutoSelect { get; set; } = true;
