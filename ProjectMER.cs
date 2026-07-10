@@ -41,10 +41,7 @@ public class ProjectMER : Plugin<Config>
 
 	public PickupEventsHandler PickupEventsHandler { get; } = new();
 
-	public CustomMapLogicHandler CustomMapLogicHandler { get; } = new();
-
 	public override void Enable()
-
 	{
 		Singleton = this;
 		_harmony = new Harmony($"michal78900.mapEditorReborn-{DateTime.Now.Ticks}");
@@ -76,7 +73,6 @@ public class ProjectMER : Plugin<Config>
 		CustomHandlersManager.RegisterEventsHandler(ToolGunEventsHandler);
 		CustomHandlersManager.RegisterEventsHandler(AcionOnEventHandlers);
 		CustomHandlersManager.RegisterEventsHandler(PickupEventsHandler);
-		CustomMapLogicHandler.Enable();
 
 		_harmony = new Harmony($"michal78900.mapEditorReborn-{DateTime.Now.Ticks}");
 		_harmony.PatchAll();
@@ -124,12 +120,10 @@ public class ProjectMER : Plugin<Config>
 		CustomHandlersManager.UnregisterEventsHandler(ToolGunEventsHandler);
 		CustomHandlersManager.UnregisterEventsHandler(AcionOnEventHandlers);
 		CustomHandlersManager.UnregisterEventsHandler(PickupEventsHandler);
-		CustomMapLogicHandler.Disable();
 
 		_harmony.UnpatchAll();
 		_mapFileSystemWatcher?.Dispose();
 	}
-
 
 	public override string Name => "ProjectMER";
 
