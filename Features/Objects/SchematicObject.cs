@@ -168,7 +168,8 @@ public class SchematicObject : MonoBehaviour
 		GameObject gameObject = block.Create(this, parentTransform);
 		NetworkServer.Spawn(gameObject);
 
-		ObjectFromId.Add(block.ObjectId, gameObject.transform);
+		if (!ObjectFromId.ContainsKey(block.ObjectId))
+			ObjectFromId.Add(block.ObjectId, gameObject.transform);
 
 		if (block.BlockType != BlockType.Light && TryGetAnimatorController(block.AnimatorName, out RuntimeAnimatorController animatorController))
 			_animators.Add(gameObject, animatorController);
