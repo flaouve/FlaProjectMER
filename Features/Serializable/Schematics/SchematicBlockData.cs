@@ -43,7 +43,7 @@ public class SchematicBlockData
 			BlockType.Pickup => CreatePickup(schematicObject),
 			BlockType.Workstation => CreateWorkstation(),
 			BlockType.Text => CreateText(),
-			BlockType.Interactable => CreateInteractable(),
+			BlockType.Interactable => CreateInteractable(schematicObject),
 			BlockType.Waypoint => CreateWaypoint(),
 			_ => CreateEmpty(true)
 		};
@@ -170,12 +170,42 @@ public class SchematicBlockData
 		return text.gameObject;
 	}
 
-	private GameObject CreateInteractable()
+	private GameObject CreateInteractable(SchematicObject schematicObject)
 	{
 		InvisibleInteractableToy interactable = GameObject.Instantiate(PrefabManager.Interactable);
 		interactable.NetworkShape = (InvisibleInteractableToy.ColliderShape)Convert.ToInt32(Properties["Shape"]);
 		interactable.NetworkInteractionDuration = Convert.ToSingle(Properties["InteractionDuration"]);
 		interactable.NetworkIsLocked = Properties.TryGetValue("IsLocked", out object isLocked) && Convert.ToBoolean(isLocked);
+
+		if (Properties.TryGetValue("TargetAnimatorId", out object targetIdObj) && Properties.TryGetValue("AnimationStateName", out object stateNameObj))
+		{
+			int targetId = Convert.ToInt32(targetIdObj);
+			string stateName = Convert.ToString(stateNameObj);
+
+			if (targetId != 0 && !string.IsNullOrEmpty(stateName))
+			{
+				bool isToggled = false;
+				interactable.OnInteracted += (ReferenceHub hub) =>
+				{
+					if (schematicObject.ObjectFromId.TryGetValue(targetId, out Transform targetTransform))
+					{
+						if (targetTransform.gameObject.TryGetComponent(out Animator animator))
+						{
+							if (Properties.TryGetValue("AnimationStateName2", out object stateName2Obj) && !string.IsNullOrEmpty(Convert.ToString(stateName2Obj)))
+							{
+								string stateName2 = Convert.ToString(stateName2Obj);
+								animator.Play(isToggled ? stateName : stateName2);
+								isToggled = !isToggled;
+							}
+							else
+							{
+								animator.Play(stateName);
+							}
+						}
+					}
+				};
+			}
+		}
 
 		return interactable.gameObject;
 	}
