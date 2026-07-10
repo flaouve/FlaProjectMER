@@ -189,7 +189,11 @@ public class SchematicBlockData
 				{
 					if (schematicObject.ObjectFromId.TryGetValue(targetId, out Transform targetTransform))
 					{
-						if (targetTransform.gameObject.TryGetComponent(out Animator animator))
+						Animator animator = targetTransform.gameObject.GetComponent<Animator>() ?? 
+											targetTransform.gameObject.GetComponentInChildren<Animator>() ?? 
+											targetTransform.gameObject.GetComponentInParent<Animator>();
+
+						if (animator != null)
 						{
 							if (Properties.TryGetValue("AnimationStateName2", out object stateName2Obj) && !string.IsNullOrEmpty(Convert.ToString(stateName2Obj)))
 							{
