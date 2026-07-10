@@ -238,7 +238,16 @@ public class SchematicBlockData
 	private GameObject CreateWaypoint()
 	{
 		WaypointToy waypoint = GameObject.Instantiate(PrefabManager.Waypoint);
-		waypoint.NetworkPriority = byte.MaxValue;
+
+		if (Properties != null && Properties.TryGetValue("Priority", out object priorityObj))
+		{
+			int val = Convert.ToInt32(priorityObj);
+			waypoint.NetworkPriority = (byte)Math.Max(0, Math.Min(255, val));
+		}
+		else
+		{
+			waypoint.NetworkPriority = byte.MaxValue; // backwards compat: default 255
+		}
 
 		return waypoint.gameObject;
 	}
