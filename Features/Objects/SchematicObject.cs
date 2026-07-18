@@ -168,6 +168,18 @@ public class SchematicObject : MonoBehaviour
 		GameObject gameObject = block.Create(this, parentTransform);
 		NetworkServer.Spawn(gameObject);
 
+		// Apply NetworkIsStatic / NetworkMovementSmoothing AFTER spawning.
+		// Setting Mirror SyncVars before NetworkServer.Spawn() causes initialization
+		// order issues where the static flag is silently lost, resulting in the server
+		// sending position updates every tick even for fully static objects.
+		if (gameObject.TryGetComponent(out AdminToyBase adminToyBase))
+		{
+			if (block.IsStatic)
+				adminToyBase.NetworkIsStatic = true;
+			else
+				adminToyBase.NetworkMovementSmoothing = 60;
+		}
+
 		if (!ObjectFromId.ContainsKey(block.ObjectId))
 			ObjectFromId.Add(block.ObjectId, gameObject.transform);
 
@@ -176,6 +188,7 @@ public class SchematicObject : MonoBehaviour
 
 		return gameObject.transform;
 	}
+
 
 	private bool TryGetAnimatorController(string animatorName, out RuntimeAnimatorController animatorController)
 	{

@@ -33,6 +33,12 @@ public class SchematicBlockData
 
 	public virtual Dictionary<string, object> Properties { get; set; }
 
+	/// <summary>
+	/// Returns true if this block has Static=true in its Properties.
+	/// Used to apply NetworkIsStatic AFTER NetworkServer.Spawn() to avoid Mirror SyncVar initialization order issues.
+	/// </summary>
+	public bool IsStatic => Properties != null && Properties.TryGetValue("Static", out object isStatic) && Convert.ToBoolean(isStatic);
+
 	public GameObject Create(SchematicObject schematicObject, Transform parentTransform)
 	{
 		GameObject gameObject = BlockType switch
@@ -63,17 +69,9 @@ public class SchematicBlockData
 				_ => Scale
 			};
 
-		if (gameObject.TryGetComponent(out AdminToyBase adminToyBase))
-		{
-			if (Properties != null && Properties.TryGetValue("Static", out object isStatic) && Convert.ToBoolean(isStatic))
-			{
-				adminToyBase.NetworkIsStatic = true;
-			}
-			else
-			{
-				adminToyBase.NetworkMovementSmoothing = 60;
-			}
-		}
+		// NOTE: NetworkIsStatic and NetworkMovementSmoothing are intentionally NOT set here.
+		// They must be applied AFTER NetworkServer.Spawn() to avoid Mirror SyncVar
+		// initialization order issues (see SchematicObject.CreateObject).
 
 		return gameObject;
 	}
