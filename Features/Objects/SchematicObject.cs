@@ -174,10 +174,15 @@ public class SchematicObject : MonoBehaviour
 		// sending position updates every tick even for fully static objects.
 		if (gameObject.TryGetComponent(out AdminToyBase adminToyBase))
 		{
-			if (block.IsStatic)
-				adminToyBase.NetworkIsStatic = true;
-			else
+			adminToyBase.NetworkIsStatic = block.IsStatic;
+			if (!block.IsStatic)
 				adminToyBase.NetworkMovementSmoothing = 60;
+
+			// Reset parent to trigger Unity's OnTransformParentChanged callback.
+			// This forces RpcChangeParent to run after spawning, syncing the parent-child relationship to clients.
+			gameObject.transform.SetParent(null);
+			gameObject.transform.SetParent(parentTransform);
+			gameObject.transform.SetLocalPositionAndRotation(block.Position, Quaternion.Euler(block.Rotation));
 		}
 
 		if (!ObjectFromId.ContainsKey(block.ObjectId))

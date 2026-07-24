@@ -69,9 +69,12 @@ public class SchematicBlockData
 				_ => Scale
 			};
 
-		// NOTE: NetworkIsStatic and NetworkMovementSmoothing are intentionally NOT set here.
-		// They must be applied AFTER NetworkServer.Spawn() to avoid Mirror SyncVar
-		// initialization order issues (see SchematicObject.CreateObject).
+		if (gameObject.TryGetComponent(out AdminToyBase adminToyBase))
+		{
+			adminToyBase.NetworkIsStatic = IsStatic;
+			if (!IsStatic)
+				adminToyBase.NetworkMovementSmoothing = 60;
+		}
 
 		return gameObject;
 	}
